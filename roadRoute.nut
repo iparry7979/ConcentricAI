@@ -4,6 +4,8 @@ require("roadStationBuilder.nut");
 require("roadDepotBuilder.nut");
 require("builder.nut");
 require("route.nut");
+require("networkNode.nut");
+
 class roadRoute extends route
 {
 }
@@ -195,7 +197,7 @@ function roadRoute::BuildRoute()
 
 /* Builds the stations at each end of the route
  * Returns false if unable */
-function roadRoute::BuildStations()
+function roadRoute::BuildNodes()
 {
 	local tile1 = AITown.GetLocation(startTown);
 	local tile2 = AITown.GetLocation(endTown);
@@ -208,7 +210,7 @@ function roadRoute::BuildStations()
 	local endStation = station2.BuildNearTile(tile2, 1);
 	if (startStation != null && endStation != null)
 	{
-		stations = [startStation, endStation];
+		nodes = [networkNode(startStation, startTown, 0), networkNode(endStation, endTown, 0)];
 		success = true;
 	}
 	return success;
@@ -255,9 +257,10 @@ function roadRoute::AddService()
 	{
 		return false;
 	}
-	for (local i = 0; i < stations.len(); i++)
+	local stns = GetAllStations();
+	for (local i = 0; i < stns.len(); i++)
 	{
-		if (!AIOrder.InsertOrder(vehicleID, i, stations[i], AIOrder.OF_NONE))
+		if (!AIOrder.InsertOrder(vehicleID, i, stns[i], AIOrder.OF_NON_STOP_INTERMEDIATE))
 		{
 			return false;
 		}
@@ -317,9 +320,10 @@ function roadRoute::NewServiceViable()
 	if (currentTick - lastServiceAddedTick > waitPeriod)
 	{
 		local acceptableValueCount = 0;
-		for (local i = 0; i < stations.len(); i++)
+		local stns = GetAllStations();
+		for (local i = 0; i < stns.len(); i++)
 		{
-			local cargoWaiting = AIStation.GetCargoWaiting(AIStation.GetStationID(stations[i]), cargoTypeID);
+			local cargoWaiting = AIStation.GetCargoWaiting(AIStation.GetStationID(stns[i]), cargoTypeID);
 			local totalCapacity = 0;
 			for (local j = 0; j < services.len(); j++)
 			{
@@ -334,7 +338,7 @@ function roadRoute::NewServiceViable()
 		}
 		if (acceptableValueCount > 0)
 		{
-			if (acceptableValueCount.tofloat() / stations.len().tofloat() > acceptableRatio)
+			if (acceptableValueCount.tofloat() / stns.len().tofloat() > acceptableRatio)
 			{
 				return true;
 			}

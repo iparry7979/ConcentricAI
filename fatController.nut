@@ -227,7 +227,7 @@ function fatController::LoadFromTable(table)
 			}
 		}
 	}
-	if ("sLastNewNetworkBuilt" in table) lastAction = table.lastAction;
+	if ("sLastNewNetworkBuilt" in table) lastAction = table.slastAction;
 	if ("sNetworkBuildWaitTime" in table) networkBuildWaitTime = table.sNetworkBuildWaitTime;
 	if ("sCentreTile" in table) centreTile = table.sCentreTile;
 	if ("sAnyActionWaitTime" in table) anyActionWaitTime = table.sAnyActionWaitTime;

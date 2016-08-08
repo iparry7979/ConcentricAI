@@ -78,7 +78,7 @@ function network::GetAllStations()
 	local stationsOnNetwork = AIList();
 	for(local i = 0; i < routes.len(); i++)
 	{
-		local stationsOnRoute = routes[i].stations;
+		local stationsOnRoute = routes[i].GetAllStations();
 		for (local j = 0; j < stationsOnRoute.len(); j++)
 		{
 			if (!stationsOnNetwork.HasItem(stationsOnRoute[j]))
@@ -88,6 +88,29 @@ function network::GetAllStations()
 		}
 	}
 	return stationsOnNetwork;
+}
+
+function network::GetAllNodes()
+{
+	local nodesOnNetwork = [];
+	for(local i = 0; i < routes.len(); i++)
+	{
+		local nodesOnRoute = routes[i].nodes;
+		for (local j = 0; j < nodesOnRoute.len(); j++)
+		{
+			local station = nodesOnRoute[j].station;
+			local addNode = true;
+			for (local k = 0; k < nodesOnNetwork.len(); k++)
+			{
+				if (nodesOnNetwork[k].station == station) addNode = false;
+			}
+			if (addNode)
+			{
+				utilities.AddItemToArray(nodesOnNetwork, nodesOnRoute[j]);
+			}
+		}
+	}
+	return nodesOnNetwork;
 }
 
 function network::Size()
@@ -110,7 +133,7 @@ function network::GetAllDepots()
 	return depotsOnNetwork;
 }
 
-function network::RouteExists(stations, cargoTypeID)
+function network::RouteExists(nodes, cargoTypeID)
 {
 	for (local i = 0; i < routes.len(); i++)
 	{
@@ -118,14 +141,14 @@ function network::RouteExists(stations, cargoTypeID)
 		if (r.cargoTypeID == cargoTypeID)
 		{
 			local containedStationCount = 0;
-			for (local j = 0; j < stations.len(); j++)
+			for (local j = 0; j < nodes.len(); j++)
 			{
-				if (r.ContainsStation(stations[j]))
+				if (r.ContainsNode(nodes[j]))
 				{
 					containedStationCount++;
 				}
 			}
-			if (containedStationCount == stations.len())
+			if (containedStationCount == nodes.len())
 			{
 				return true;
 			}
@@ -136,58 +159,47 @@ function network::RouteExists(stations, cargoTypeID)
 
 function network::ConsolidateRoutes(routeAdded)
 {
-	local stationsOnRoute = routeAdded.stations;
-	local stationsOnNetwork = GetAllStations();
+	local nodesOnRoute = routeAdded.nodes;
+	local nodesOnNetwork = GetAllNodes();
 	local obsoleteRoute = null;
 	for (local i = 0; i < routes.len(); i++)
 	{
-		if (routes[i].stations.len() > 2)
+		if (routes[i].nodes.len() > 2)
 		{
 			obsoleteRoute = routes[i];
-			//AILog.Info("Obsolete Route: " + obsoleteRoute);
 		}
 	}
-	for (local i = 0; i < stationsOnRoute.len(); i++)
+	for (local i = 0; i < nodesOnRoute.len(); i++)
 	{
-		//AILog.Info("1");
-		local currentStation = stationsOnNetwork.Begin();
-		while (!stationsOnNetwork.IsEnd())
+		for (local j = 0; j < nodesOnNetwork.len(); j++)
 		{
-			if (stationsOnRoute[i] != currentStation)
+			if (nodesOnRoute[i].station != nodesOnNetwork[j].station)
 			{
-				//AILog.Info("2");
-				//AILog.Info(stationsOnRoute[i] + ", " + currentStation);
-				local newRouteStations = [stationsOnRoute[i], currentStation];
-				//AILog.Info(!RouteExists(newRouteStations, 0));
-				if (!RouteExists(newRouteStations, 0))
+				local newRouteNodes = [nodesOnRoute[i], nodesOnNetwork[j]];
+				if (!RouteExists(newRouteNodes, 0))
 				{
 					local newRoute = roadRoute();
-					newRoute.startTown = AITile.GetClosestTown(stationsOnRoute[i]);
-					newRoute.endTown = AITile.GetClosestTown(currentStation);
-					newRoute.stations = newRouteStations;
+					newRoute.startTown = AITile.GetClosestTown(nodesOnRoute[i].station);
+					newRoute.endTown = AITile.GetClosestTown(nodesOnNetwork[j].station);
+					newRoute.nodes = newRouteNodes;
 					newRoute.established = AIController.GetTick();
 					newRoute.cargoTypeID = routeAdded.cargoTypeID;
-					newRoute.depot = GetClosestDepot(currentStation);
+					newRoute.depot = GetClosestDepot(nodesOnNetwork[j].station);
 					AddRoute(newRoute);
 					newRoute.AddService();
 				}
 			}
-			currentStation = stationsOnNetwork.Next();
 		}
 	}
 	if (routes.len() > 1)
 	{
 		local longRoute = roadRoute();
-		//utilities.OutputList(GetAllStations());
-		//AILog.Info("1. " + longRoute.ToString());
-		//AILog.Info("Long Route: " + longRoute);
-		longRoute.SetStations(GetAllStations());
+		longRoute.SetNodes(GetAllNodes());
 		longRoute.established = AIController.GetTick();
 		longRoute.cargoTypeID = routeAdded.cargoTypeID;
-		longRoute.depot = GetClosestDepot(GetAllStations().Begin());
+		longRoute.depot = GetClosestDepot(GetAllNodes()[0].station);
 		AddRoute(longRoute);
 		longRoute.AddService();
-		//AILog.Info("2. " + longRoute.ToString());
 		if (obsoleteRoute != null)
 		{
 			obsoleteRoute.CancelAllServices();

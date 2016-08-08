@@ -16,7 +16,7 @@ class ConcentricAI extends AIInfo {
   	  	description = "Days to wait between building routes",
   	  	min_value = 1,
   	  	max_value = 5000,
-  	  	easy_value = 300,
+  	  	easy_value = 80,
   	  	medium_value = 150,
   	  	hard_value = 80,
   	  	custom_value = 200,

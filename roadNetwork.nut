@@ -18,14 +18,14 @@ function roadNetwork::Initialise(excludedTowns, centreTile)
 		local acc = AIAccounting();
 		local test = AITestMode();
 		route.BuildRoute();
-		if (!route.BuildStations()) return false;
+		if (!route.BuildNodes()) return false;
 		if (!route.BuildDepot()) return false;
 		local totalCost = acc.GetCosts() + route.GetNewVehicleValue();
 		local exec = AIExecMode();
 		if (fPlanner.CanIBuildThisRoute(totalCost))
 		{
 			route.InitialiseRoute();
-			if (!route.BuildStations()) return false;
+			if (!route.BuildNodes()) return false;
 			if (!route.BuildDepot()) return false;
 			if (!route.AddService()) return false;
 		}
@@ -59,11 +59,12 @@ function roadNetwork::Expand(excludedTowns)
 		potentialDestinations.RemoveList(excludedTowns);
 		if (newRoute.FindPathBetweenOneGivenTown(t1, potentialDestinations, 75, 25))
 		{
+			AILog.Info("ExpansionRouteFound");
 			success = true;
 			local acc = AIAccounting();
 			local test = AITestMode();
 			newRoute.BuildRoute();
-			if (!newRoute.BuildStations()) success = false;
+			if (!newRoute.BuildNodes()) success = false;
 			if (!newRoute.BuildDepot()) success = false;
 			local totalCost = acc.GetCosts() + newRoute.GetNewVehicleValue();
 			local exec = AIExecMode();
@@ -71,11 +72,14 @@ function roadNetwork::Expand(excludedTowns)
 			{ 
 				success = false;
 				financialFail = true;
+				AILog.Info("FinancialFail");
 			}
 			if (success)
 			{
 				newRoute.InitialiseRoute();
-				if (!newRoute.BuildStations()) success = false;
+				AILog.Info("BuildNodes");
+				if (!newRoute.BuildNodes()) success = false;
+				if (!success) AILog.Info("Build Nodes Failed");
 				if (!newRoute.BuildDepot()) success = false;
 				if (!newRoute.AddService()) success = false;
 				lastExpansion = AIController.GetTick();

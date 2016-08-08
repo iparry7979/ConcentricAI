@@ -4,7 +4,8 @@ class route
   startTown = null; //townID of startTown
   endTown = null;  //townID of endTown
 	depot = null; //tile containing depot
-	stations = []; //array of stations on route
+	//stations = []; //array of stations on route
+	nodes = []; //An array of nodes containing a station, town etc.
 	services = [];
 	lastServiceAddedTick = 0; //the tick when the last service was added to route
 	established = 0; //the tick the route was established
@@ -21,7 +22,8 @@ class route
 		startTown = null; //townID of startTown
 		endTown = null;  //townID of endTown
 		depot = null; //tile containing depot
-		stations = []; //array of stations on route
+		//stations = []; //array of stations on route
+		nodes = [];
 		services = [];
 		lastServiceAddedTick = 0; //the tick when the last service was added to route
 		established = 0; //the tick the route was established
@@ -43,11 +45,11 @@ function route::GetServicesAsList()
 	return rtn;
 }
 
-function route::ContainsStation(station)
+function route::ContainsNode(node)
 {
-	for (local i = 0; i < stations.len(); i++)
+	for (local i = 0; i < nodes.len(); i++)
 	{
-		if (stations[i] == station) return true;
+		if (nodes[i].station == node.station) return true;
 	}
 	return false;
 }
@@ -128,17 +130,19 @@ function route::ReplaceOldVehicles()
 	}
 }
 
-function route::SetStations(stationList)
+function route::GetAllStations()
 {
-	
-	local currentStation = stationList.Begin();
-	while (!stationList.IsEnd())
+	local rtn = [];
+	for (local i = 0; i < nodes.len(); i++)
 	{
-		local currentSize = stations.len();
-		stations.resize(currentSize + 1);
-		stations[currentSize] = currentStation;
-		currentStation = stationList.Next();
+		utilities.AddItemToArray(rtn, nodes[i].station);
 	}
+	return rtn;
+}
+
+function route::SetNodes(nodeList)
+{
+	nodes = nodeList;
 }
 
 function route::CancelAllServices()
@@ -159,6 +163,11 @@ function route::IntegrityCheck()
 	}
 }
 
+function route::AddNode(node)
+{
+	utilities.AddItemToArray(nodes, node);
+}
+
 function route::GetSaveTable()
 {
 	local routeType = 0;
@@ -166,13 +175,18 @@ function route::GetSaveTable()
 	{
 		routeType = 0;
 	}
+	local nodeTables = [];
+	for (local i = 0; i < nodes.len(); i++)
+	{
+		utilities.AddItemToArray(nodeTables, nodes[i].GetSaveTable());
+	}
 	local saveTable =
 	{
 		//sPath = path
 		sStartTown = startTown
 		sEndTown = endTown
 		sDepot = depot
-		sStations = stations
+		sNodes = nodeTables
 		sServices = services
 		sLastServiceAddedTick = lastServiceAddedTick
 		sEstablished = established
@@ -193,7 +207,6 @@ function route::LoadFromTable(table)
 	if ("sStartTown" in table) startTown = table.sStartTown;
 	if ("sEndTown" in table) endTown = table.sEndTown;
 	if ("sDepot" in table) depot = table.sDepot;
-	if ("sStations" in table) stations = table.sStations;
 	if ("sServices" in table) services = table.sServices;
 	if ("sLastServiceAddedTick" in table) lastServiceAddedTick = table.sLastServiceAddedTick;
 	if ("sEstablished" in table) established = table.sEstablished;
@@ -204,6 +217,20 @@ function route::LoadFromTable(table)
 	if ("sLastIntegrityCheck" in table) lastIntegrityCheck = table.sLastIntegrityCheck;
 	if ("sIntegrityCheckInterval" in table) integrityCheckInterval = table.sIntegrityCheckInterval;
 	if ("sDistanceFromHQ" in table) distanceFromHQ = table.sDistanceFromHQ;
+	if ("sNodes" in table)
+	{
+		local nodeTables = table.sNetworks;
+		for (local i = 0; i < nodeTables.len(); i++)
+		{
+			local currentNode = nodeTables[i];
+			if (currentNode != null)
+			{
+				node = networkNode(0, 0, 0)
+				node.LoadFromTable(currentNode);
+				AddNode(node);
+			}
+		}
+	}
 }
 
 function route::ToString()
@@ -241,9 +268,9 @@ function route::BuildRoute()
 	return false;
 }
 
-function route::BuildStations()
+function route::BuildNodes()
 {
-	AILog.Warning("Function BuildStations Has Not Been Overridden");
+	AILog.Warning("Function BuildNodes Has Not Been Overridden");
 	return false;
 }
 
