@@ -3,6 +3,7 @@ require("roadRoute.nut");
 require("roadNetwork.nut");
 require("fatController.nut");
 require("pathSearcher.nut");
+require("constants.nut");
 
 class ConcentricAI extends AIController 
 {
@@ -30,8 +31,27 @@ function ConcentricAI::Start()
 
 function ConcentricAI::Initialise()
 {
+  local firstNamesMale = constants.firstNameMale;
+  local firstNamesFemale = constants.firstNameFemale;
+  local lastNames = constants.lastName;
+  local firstName = "";
+  local g = AIBase.RandRange(2);
+  if (g == 0)
+  {
+  	AICompany.SetPresidentGender(AICompany.GENDER_MALE);
+  	local x = AIBase.RandRange(firstNamesMale.len());
+  	firstName = firstNamesMale[x];
+  }
+  else
+  {
+  	AICompany.SetPresidentGender(AICompany.GENDER_FEMALE);
+  	local x = AIBase.RandRange(firstNamesFemale.len());
+  	firstName = firstNamesFemale[x];
+  }
+  local y = AIBase.RandRange(lastNames.len());
+  local fullName = firstName + " " + lastNames[y];
+  local presidentName = fullName;
   local companyName = "Concentric Transport";
-  local presidentName = "Mike Maxwell";
   if (!AICompany.SetName(companyName))
   {
     local i = 2;
