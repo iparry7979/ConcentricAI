@@ -18,14 +18,14 @@ function roadNetwork::Initialise(excludedTowns, centreTile)
 		local acc = AIAccounting();
 		local test = AITestMode();
 		route.BuildRoute();
-		if (!route.BuildNodes()) return false;
+		if (!route.BuildNodes(null, null, 0)) return false;
 		if (!route.BuildDepot()) return false;
 		local totalCost = acc.GetCosts() + route.GetNewVehicleValue();
 		local exec = AIExecMode();
 		if (fPlanner.CanIBuildThisRoute(totalCost))
 		{
 			route.InitialiseRoute();
-			if (!route.BuildNodes()) return false;
+			if (!route.BuildNodes(null, null, 1)) return false;
 			if (!route.BuildDepot()) return false;
 			if (!route.AddService()) return false;
 		}
@@ -59,12 +59,13 @@ function roadNetwork::Expand(excludedTowns)
 		potentialDestinations.RemoveList(excludedTowns);
 		if (newRoute.FindPathBetweenOneGivenTown(t1, potentialDestinations, 75, 25))
 		{
-			AILog.Info("ExpansionRouteFound");
 			success = true;
 			local acc = AIAccounting();
 			local test = AITestMode();
 			newRoute.BuildRoute();
-			if (!newRoute.BuildNodes()) success = false;
+			local existingNode1 = GetNodeContainingTown(newRoute.startTown);
+			local existingNode2 = GetNodeContainingTown(newRoute.endTown);
+			if (!newRoute.BuildNodes(existingNode1, existingNode2, 0)) success = false;
 			if (!newRoute.BuildDepot()) success = false;
 			local totalCost = acc.GetCosts() + newRoute.GetNewVehicleValue();
 			local exec = AIExecMode();
@@ -77,20 +78,17 @@ function roadNetwork::Expand(excludedTowns)
 			if (success)
 			{
 				newRoute.InitialiseRoute();
-				AILog.Info("BuildNodes");
-				if (!newRoute.BuildNodes()) success = false;
-				if (!success) AILog.Info("Build Nodes Failed");
+				if (!newRoute.BuildNodes(existingNode1, existingNode2, 1)) success = false;
 				if (!newRoute.BuildDepot()) success = false;
 				if (!newRoute.AddService()) success = false;
 				lastExpansion = AIController.GetTick();
 				AddRoute(newRoute);
 				ConsolidateRoutes(newRoute);
-				//AILog.Info("Expanding");
 				return success;
 			}
+			
 		}
 	}
-	//AILog.Info("Unable To Expand");
 	if (!financialFail)
 	{
 		canExpand = false;

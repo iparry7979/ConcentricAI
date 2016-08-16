@@ -113,6 +113,19 @@ function network::GetAllNodes()
 	return nodesOnNetwork;
 }
 
+function network::GetNodeContainingTown(town)
+{
+	local nodes = GetAllNodes();
+	for (local i = 0; i < nodes.len(); i++)
+	{
+		if (nodes[i].town == town)
+		{
+			return nodes[i];
+		}
+	}
+	return null;
+}
+
 function network::Size()
 {
 	local stationList = GetAllStations();

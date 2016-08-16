@@ -52,7 +52,6 @@ class roadRoute extends route
 				local potentialDestinations = AITownList();
 				potentialDestinations.RemoveList(excludedTowns);
 				//potentialDestinations.Valuate(AITown.GetDistanceManhattanToTile, AITown.GetLocation(t1));
-				//AILog.Info("Attempting to build between " + AITown.GetName(t1) + "AND");
 				//potentialDestinations.Sort(AIList.SORT_BY_VALUE, true);
 				if (FindPathBetweenOneGivenTown(t1, potentialDestinations, 75, 25))
 				{
@@ -80,7 +79,6 @@ class roadRoute extends route
 	  potentialDestinations.Valuate(AITown.GetDistanceManhattanToTile, t1Loc);
 	  potentialDestinations.KeepBelowValue(radius);
 	  potentialDestinations.Sort(AIList.SORT_BY_VALUE, true);
-	  AILog.Info("Potential Destinations: " + potentialDestinations.Count());
 		local success = false;
 		foreach (t2, pop2 in potentialDestinations)
 		{
@@ -88,7 +86,6 @@ class roadRoute extends route
 			//potentialDestinations.Valuate(AITown.GetDistanceManhattanToTile);
 			//potentialDestinations.KeepBelowValue(100);
 			
-			//AILog.Info(AITown.GetName(t2) + " - " + t2);
 			if (!success)
 			{
 				if (t1 != t2)
@@ -100,7 +97,6 @@ class roadRoute extends route
 				}
 			}
 		}
-		AILog.Info("Done Finding Path" + AIController.GetTick());
 		return success;
 	}
 	
@@ -196,21 +192,49 @@ function roadRoute::BuildRoute()
 }
 
 /* Builds the stations at each end of the route
- * Returns false if unable */
-function roadRoute::BuildNodes()
+ * Returns false if unable 
+   if nodes already exist for town they are passed in.
+   Otherwise arguments will be null
+   Mode can be 0 for test or 1 for exec*/
+function roadRoute::BuildNodes(existingNode1, existingNode2, mode)
 {
-	local tile1 = AITown.GetLocation(startTown);
-	local tile2 = AITown.GetLocation(endTown);
 	local success = false;
-	local station1 = roadStationBuilder();
-	station1.townServiced = startTown;
-	local station2 = roadStationBuilder();
-	station2.townServiced = endTown;
-	local startStation = station1.BuildNearTile(tile1, 1);
-	local endStation = station2.BuildNearTile(tile2, 1);
-	if (startStation != null && endStation != null)
+	local node1 = null;
+	local node2 = null;
+	if (existingNode1 == null)
 	{
-		nodes = [networkNode(startStation, startTown, 0), networkNode(endStation, endTown, 0)];
+		local tile1 = AITown.GetLocation(startTown);
+		local station1 = roadStationBuilder();
+		station1.townServiced = startTown;
+		local startStation = station1.BuildNearTile(tile1, 1);
+		if (startStation != null)
+		{
+			utilities.AddItemToArray(nodes, networkNode(startStation, startTown, 0));
+		}
+	}
+	else
+	{
+		utilities.AddItemToArray(nodes, existingNode1);
+	}
+	if (existingNode2 == null)
+	{
+		local tile2 = AITown.GetLocation(endTown);
+		local station2 = roadStationBuilder();
+		station2.townServiced = endTown;
+		local endStation = station2.BuildNearTile(tile2, 1);
+		if (endStation != null)
+		{
+			utilities.AddItemToArray(nodes, networkNode(endStation, endTown, 0));
+		}
+	}
+	else
+	{
+		utilities.AddItemToArray(nodes, existingNode2);
+	}
+	if (nodes.len() >= 2)
+	{
+		//nodes = [networkNode(startStation, startTown, 0), networkNode(endStation, endTown, 0)];
+		if (mode == 0) nodes = []; // In test mode don't create the nodes yet
 		success = true;
 	}
 	return success;

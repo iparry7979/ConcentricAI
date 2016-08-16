@@ -33,7 +33,6 @@ function fatController::Initialise()
 	{
 		lastAction = AIController.GetTick();
 		explorationHorizon = n1.distanceSquareFromHQ;
-		AILog.Info("ex Horizon = " + explorationHorizon);
 		AddNetwork(n1);
 	}
 
@@ -56,7 +55,6 @@ function fatController::RunControlLoop()
 	{
 		return;
 	}
-	AILog.Info("Wait Time Elapsed");
 	if (ExpandNetworks())
 	{
 		lastAction = AIController.GetTick();

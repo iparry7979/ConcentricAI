@@ -28,6 +28,12 @@ function networkNode::IgnorePotentialIndustryConnection(industry)
 	utilities.AddItemToArray(exhaustedIndustries, industry);
 }
 
+function networkNode::ToString()
+{
+	AILog.Info("Station = " + station);
+	AILog.Info("Town = " + AITown.GetName(town));
+}
+
 function networkNode::GetSaveTable()
 {
 	local saveTable =
