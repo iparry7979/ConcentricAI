@@ -30,8 +30,24 @@ function networkNode::IgnorePotentialIndustryConnection(industry)
 
 function networkNode::ToString()
 {
-	AILog.Info("Station = " + station);
-	AILog.Info("Town = " + AITown.GetName(town));
+	AILog.Info("New Node");
+	AILog.Info("	Station = " + station);
+	AILog.Info("	Town = " + AITown.GetName(town));
+	AILog.Info("	Exhausted Towns:");
+	for (local i = 0; i < exhaustedTowns.len(); i++)
+	{
+		AILog.Info(		exhaustedTowns[i]);
+	}
+}
+
+function networkNode::ExhaustedTownsAsList()
+{
+	local rtn = AIList();
+	for (local i = 0; i < exhaustedTowns.len(); i++)
+	{
+		rtn.AddItem(exhaustedTowns[i], 0);
+	}
+	return rtn;
 }
 
 function networkNode::GetSaveTable()

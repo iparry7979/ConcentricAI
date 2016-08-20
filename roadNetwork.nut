@@ -17,7 +17,7 @@ function roadNetwork::Initialise(excludedTowns, centreTile)
 	{
 		local acc = AIAccounting();
 		local test = AITestMode();
-		route.BuildRoute();
+		local x = route.BuildRoute();
 		if (!route.BuildNodes(null, null, 0)) return false;
 		if (!route.BuildDepot()) return false;
 		if (route.GetNewVehicleValue() == null)
@@ -52,19 +52,23 @@ function roadNetwork::Expand(excludedTowns)
 	local newRoute = roadRoute();
 	local stations = GetAllStations();
 	local towns = utilities.MapStationListToTownList(stations);
+	local nodes = GetAllNodes();
 	local financialFail = false;
 	local success = false;
-	foreach (t1, pop1 in towns)
+	for (local i = 0; i < nodes.len(); i++)
 	{
+		local t1 = nodes[i].town;
+		newRoute.AddNode(nodes[i]);
 		local potentialDestinations = AITownList();
 		potentialDestinations.Valuate(AITown.GetPopulation);
 		potentialDestinations.Sort(AIList.SORT_BY_VALUE, false);
 		potentialDestinations.KeepAboveValue(300);
 		potentialDestinations.RemoveList(excludedTowns);
-		
+		potentialDestinations.RemoveList(nodes[i].ExhaustedTownsAsList());
 		if (newRoute.FindPathBetweenOneGivenTown(t1, potentialDestinations, 75, 25))
 		{
 			success = true;
+			newRoute.nodes = [];
 			local acc = AIAccounting();
 			local test = AITestMode();
 			newRoute.BuildRoute();

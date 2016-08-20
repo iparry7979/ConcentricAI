@@ -94,6 +94,17 @@ class roadRoute extends route
 					{
 						success = true;
 					}
+					else
+					{
+						if (nodes.len() > 0)
+						{
+							local n = nodes[0];
+							if (n.town == t1)
+							{
+								n.IgnorePotentialTownConnection(t2);
+							}
+						}	
+					}
 				}
 			}
 		}
