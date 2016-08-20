@@ -6,6 +6,7 @@ class fatController
 {
 	networks = [];
 	lastAction = 0;
+	lastExpansion = 0;
 	networkBuildWaitTime = 1000;
 	anyActionWaitTime = 500;
 	explorationHorizon = 0;
@@ -15,6 +16,7 @@ class fatController
 	{
 		this.networks = [];
 		this.lastAction  = 0;
+		this.lastExpansion = 0;
 		local bwt = ConcentricAI.GetSetting("RouteWait");
 		this.networkBuildWaitTime = bwt*18;
 		local awt = ConcentricAI.GetSetting("ActionWait");
@@ -32,6 +34,7 @@ function fatController::Initialise()
 	if (n1.Initialise(townsOnNetwork, centreTile))
 	{
 		lastAction = AIController.GetTick();
+		lastExpansion = lastAction;
 		explorationHorizon = n1.distanceSquareFromHQ;
 		AddNetwork(n1);
 	}
@@ -58,15 +61,18 @@ function fatController::RunControlLoop()
 	if (ExpandNetworks())
 	{
 		lastAction = AIController.GetTick();
+		lastExpansion = lastAction;
 		return;
 	}
 	AILog.Info("Could not expand networks. Searching for new Networks.");
 	SearchForNewNetworks();
+	lastAction = AIController.GetTick();
+	lastExpansion = lastAction;
 }
 
 function fatController::NetworkBuildWaitTimeElapsed()
 {
-	return AIController.GetTick() - lastAction > networkBuildWaitTime;
+	return AIController.GetTick() - lastExpansion > networkBuildWaitTime;
 }
 
 function fatController::AnyActionWaitTimeElapsed()
@@ -194,6 +200,7 @@ function fatController::GetSaveTable()
 	{
 		sNetworks = networkTables
 		slastAction = lastAction
+		sLastExpansion = lastExpansion
 		sNetworkBuildWaitTime = networkBuildWaitTime
 		sCentreTile = centreTile
 		sAnyActionWaitTime = anyActionWaitTime
@@ -225,7 +232,8 @@ function fatController::LoadFromTable(table)
 			}
 		}
 	}
-	if ("sLastNewNetworkBuilt" in table) lastAction = table.slastAction;
+	if ("sLastExpansion" in table) lastExpansion = table.sLastExpansion;
+	if ("sLastAction" in table) lastAction = table.slastAction;
 	if ("sNetworkBuildWaitTime" in table) networkBuildWaitTime = table.sNetworkBuildWaitTime;
 	if ("sCentreTile" in table) centreTile = table.sCentreTile;
 	if ("sAnyActionWaitTime" in table) anyActionWaitTime = table.sAnyActionWaitTime;
