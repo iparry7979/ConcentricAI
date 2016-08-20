@@ -20,6 +20,10 @@ function roadNetwork::Initialise(excludedTowns, centreTile)
 		route.BuildRoute();
 		if (!route.BuildNodes(null, null, 0)) return false;
 		if (!route.BuildDepot()) return false;
+		if (route.GetNewVehicleValue() == null)
+		{
+			return false;
+		}
 		local totalCost = acc.GetCosts() + route.GetNewVehicleValue();
 		local exec = AIExecMode();
 		if (fPlanner.CanIBuildThisRoute(totalCost))
@@ -57,6 +61,7 @@ function roadNetwork::Expand(excludedTowns)
 		potentialDestinations.Sort(AIList.SORT_BY_VALUE, false);
 		potentialDestinations.KeepAboveValue(300);
 		potentialDestinations.RemoveList(excludedTowns);
+		
 		if (newRoute.FindPathBetweenOneGivenTown(t1, potentialDestinations, 75, 25))
 		{
 			success = true;
@@ -92,6 +97,7 @@ function roadNetwork::Expand(excludedTowns)
 	if (!financialFail)
 	{
 		canExpand = false;
+		
 	}
 	return success;
 }
