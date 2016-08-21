@@ -41,6 +41,10 @@ function roadNetwork::Initialise(excludedTowns, centreTile)
 
 function roadNetwork::Expand(excludedTowns)
 {
+	//temp code
+	local r = routes[0];
+	r.OutputPath();
+	//end temp code
 	if (AIController.GetTick() - lastExpansion < expansionWaitPeriod)
 	{
 		return false;

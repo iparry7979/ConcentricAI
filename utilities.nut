@@ -84,6 +84,18 @@ function utilities::OutputList(list)
 	}
 }
 
+function utilities::OutputArray(array)
+{
+	if (array.len() == 0)
+	{
+		AILog.Info("Empty Array");
+	}
+	for (local i = 0; i < array.len(); i++)
+	{
+		AILog.Info(array[i]);
+	}
+}
+
 function utilities::MapStationListToTownList(stationList)
 {
 	local townList = AIList();

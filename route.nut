@@ -1,3 +1,6 @@
+import("graph.aystar", "", 6);
+require("localPath.nut");
+
 class route
 {
 	path = null; //path returned by A*
@@ -180,6 +183,14 @@ function route::GetSaveTable()
 	{
 		utilities.AddItemToArray(nodeTables, nodes[i].GetSaveTable());
 	}
+	local pathTables = [];
+	local savePath = path;
+	while (savePath != null)
+	{
+		local nextPath = savePath.GetParent();
+		utilities.AddItemToArray(pathTables, GetPathSaveTable(savePath));
+		savePath = nextPath;
+	}
 	local saveTable =
 	{
 		//sPath = path
@@ -187,6 +198,7 @@ function route::GetSaveTable()
 		sEndTown = endTown
 		sDepot = depot
 		sNodes = nodeTables
+		sPath = pathTables
 		sServices = services
 		sLastServiceAddedTick = lastServiceAddedTick
 		sEstablished = established
@@ -200,6 +212,17 @@ function route::GetSaveTable()
 		sDistanceFromHQ = distanceFromHQ
 	}
 	return saveTable;
+}
+
+function route::GetPathSaveTable(pathNode)
+{
+	local pathTable =
+	{
+		sTile = pathNode.GetTile()
+		sDirection = pathNode.GetDirection()
+		sCost = pathNode.GetCost()
+	}
+	return pathTable;
 }
 
 function route::LoadFromTable(table)
@@ -219,7 +242,7 @@ function route::LoadFromTable(table)
 	if ("sDistanceFromHQ" in table) distanceFromHQ = table.sDistanceFromHQ;
 	if ("sNodes" in table)
 	{
-		local nodeTables = table.sNetworks;
+		local nodeTables = table.sNodes;
 		for (local i = 0; i < nodeTables.len(); i++)
 		{
 			local currentNode = nodeTables[i];
@@ -230,6 +253,19 @@ function route::LoadFromTable(table)
 				AddNode(node);
 			}
 		}
+	}
+	if ("sPath" in table)
+	{
+		local pathTables = table.sPath;
+		//utilities.OutputArray(pathTables);
+		local previous = null;
+		for (local i = pathTables.len() - 1; i >= 0; i--)
+		{
+			local thisNode = localPath(previous, pathTables[i].sTile, pathTables[i].sDirection, pathTables[i].sCost);
+			previous = thisNode;
+		}
+		path = previous;
+		OutputPath();
 	}
 }
 
@@ -249,6 +285,17 @@ function route::ToString()
 	}
 	
 	return rtn;
+}
+
+function route::OutputPath()
+{
+	local outputPath = path;
+	while (outputPath != null)
+	{
+		AILog.Info(outputPath.GetTile());
+		local nextPath = outputPath.GetParent();
+		outputPath = nextPath;
+	}
 }
 
 function route::HasNoServices()

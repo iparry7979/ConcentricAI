@@ -1,7 +1,7 @@
 class constants
 {
 	firstNameMale = ["Tim", "Luke", "Leigh", "Justin", "Aaron", "Michael", "David", "Matthew", "Jacob", "Ian", "Nathanael", "Antoine", 
-					"Pascal", "Phillip","Furqan", "Lachlan", "Adam", "Ben", "Lisa", "Shane", "Darryn", "Keith", "James", "Jack", 
+					"Pascal", "Phillip","Furqan", "Lachlan", "Adam", "Ben", "Shane", "Darryn", "Keith", "James", "Jack", 
 					"Francis", "Tristan", "Cody", "Eran", "Nathan", "Rupert", "Daniel", "Vince", "Sean", "Angus", "Anthony", 
 					"John", "Rahul", "Blake", "Anto", "Steve", "Pat"];
 					
