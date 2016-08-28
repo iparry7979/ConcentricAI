@@ -53,7 +53,8 @@ class roadRoute extends route
 				potentialDestinations.RemoveList(excludedTowns);
 				//potentialDestinations.Valuate(AITown.GetDistanceManhattanToTile, AITown.GetLocation(t1));
 				//potentialDestinations.Sort(AIList.SORT_BY_VALUE, true);
-				if (FindPathBetweenOneGivenTown(t1, potentialDestinations, 75, 25))
+				local iterations = PathFindingIterations();
+				if (FindPathBetweenOneGivenTown(t1, potentialDestinations, 75, iterations))
 				{
 					local hq = AICompany.GetCompanyHQ(AICompany.COMPANY_SELF);
 					distanceFromHQ = AITown.GetDistanceSquareToTile(t1, hq);
@@ -390,5 +391,32 @@ function roadRoute::SetMaxServices(networkSize)
 		maximumSize = 1;
 	}
 	maxServices = maximumSize;
+}
+
+function roadRoute::PathFindingIterations()
+{
+	if (AIGameSettings.IsValid("difficulty.number_towns"))
+	{
+		local townSetting = AIGameSettings.GetValue("difficulty.number_towns");
+		if (townSetting == 3)
+		{
+			return 25;
+		}
+		if (townSetting == 2)
+		{
+			return 45;
+		}
+		if (townSetting == 1)
+		{
+			return 65;
+		}
+		if (townSetting == 0)
+		{
+			return 85
+		}
+		return 50;				
+	}
+	
+	return 0;
 }
 

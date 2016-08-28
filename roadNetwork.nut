@@ -69,7 +69,8 @@ function roadNetwork::Expand(excludedTowns)
 		//potentialDestinations.KeepAboveValue(300);
 		potentialDestinations.RemoveList(excludedTowns);
 		potentialDestinations.RemoveList(nodes[i].ExhaustedTownsAsList());
-		if (newRoute.FindPathBetweenOneGivenTown(t1, potentialDestinations, 75, 25))
+		local iterations = newRoute.PathFindingIterations();
+		if (newRoute.FindPathBetweenOneGivenTown(t1, potentialDestinations, 75, iterations))
 		{
 			success = true;
 			newRoute.nodes = [];

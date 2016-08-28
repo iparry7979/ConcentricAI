@@ -345,3 +345,9 @@ function route::SetMaxServices(networkSize)
 	AILog.Warning("Function SetMaxServices Has Not Been Overridden");
 	return false;
 }
+
+function route::PathFindingIterations()
+{
+	AILog.Warning("Function PathfindingIterations Has Not Been Overridden");
+	return 0;
+}	
