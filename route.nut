@@ -18,7 +18,7 @@ class route
 	distanceFromHQ = 0;
 	isObsolete = false;
 	lastIntegrityCheck = 0;
-	integrityCheckInterval = 540;
+	integrityCheckInterval = 270;
 	constructor()
 	{
 		path = null; //path returned by A*
@@ -161,6 +161,7 @@ function route::IntegrityCheck()
 {
 	if (AIController.GetTick() - lastIntegrityCheck > integrityCheckInterval)
 	{
+		AILog.Info("Integrity Check");
 		BuildRoute();
 		lastIntegrityCheck = AIController.GetTick();
 	}

@@ -19,7 +19,7 @@ class roadRoute extends route
 		local success = false;
 	  local townList = AITownList();
 	  townList.Valuate(AITown.GetPopulation);
-	  townList.KeepAboveValue(500);
+	  townList.KeepAboveValue(ConcentricAI.GetSetting("MinTownSize"));
 		townList.RemoveList(excludedTowns);
 		foreach(t1, pop1 in townList)
 		{
@@ -41,7 +41,7 @@ class roadRoute extends route
 		local success = false;
 		local townList = AITownList();
 	  	townList.Valuate(AITown.GetPopulation);
-	  	townList.KeepAboveValue(300);
+	  	townList.KeepAboveValue(ConcentricAI.GetSetting("MinTownSize"));
 		townList.RemoveList(excludedTowns);
 		townList.Valuate(AITown.GetDistanceSquareToTile, centreTile);
 		townList.Sort(AIList.SORT_BY_VALUE, true);
@@ -74,7 +74,7 @@ class roadRoute extends route
 	{
 	  AILog.Info("Finding Path" + AIController.GetTick());
 	  potentialDestinations.Valuate(AITown.GetPopulation);
-	  potentialDestinations.KeepAboveValue(200);
+	  potentialDestinations.KeepAboveValue(ConcentricAI.GetSetting("MinTownSize"));
 	  local t1Loc = AITown.GetLocation(t1);
 	  potentialDestinations.Valuate(AITown.GetDistanceManhattanToTile, t1Loc);
 	  potentialDestinations.KeepBelowValue(radius);

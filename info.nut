@@ -34,6 +34,18 @@ class ConcentricAI extends AIInfo {
   	  	custom_value = 15,
   	  	flags = 0
   	  });
+  	AddSetting(
+  	  {
+  	  	name = "MinTownSize",
+  	  	description = "Minimum required town size to justify passenger station",
+  	  	min_value = 1,
+  	  	max_value = 1000000000,
+  	  	easy_value = 250,
+  	  	medium_value = 250,
+  	  	hard_value = 250,
+  	  	custom_value = 250,
+  	  	flags = 0
+  	  });  
   }
 }
 

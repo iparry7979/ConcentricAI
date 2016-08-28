@@ -64,9 +64,9 @@ function roadNetwork::Expand(excludedTowns)
 		local t1 = nodes[i].town;
 		newRoute.AddNode(nodes[i]);
 		local potentialDestinations = AITownList();
-		potentialDestinations.Valuate(AITown.GetPopulation);
-		potentialDestinations.Sort(AIList.SORT_BY_VALUE, false);
-		potentialDestinations.KeepAboveValue(300);
+		//potentialDestinations.Valuate(AITown.GetPopulation);
+		//potentialDestinations.Sort(AIList.SORT_BY_VALUE, false);
+		//potentialDestinations.KeepAboveValue(300);
 		potentialDestinations.RemoveList(excludedTowns);
 		potentialDestinations.RemoveList(nodes[i].ExhaustedTownsAsList());
 		if (newRoute.FindPathBetweenOneGivenTown(t1, potentialDestinations, 75, 25))
